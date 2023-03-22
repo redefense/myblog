@@ -11,6 +11,10 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
   bio = "bio here"
   avatar = "img/avatar.png"
 
+[Params.widgets.social]
+  # Enable parts of social widget
+  facebook = "qqqq"
+
 [Params]
   description = "John Doe's Personal blog about everything" # Description of your site
   opengraph = true
