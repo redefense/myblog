@@ -8,7 +8,7 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 
 [Author]
   name = "ReDefense"
-  bio = "bio here"
+  bio = "ტექნიკური საკითხები კიბერ უსაფრთხოებით დაინტერესებული პირებისთვის"
   avatar = "img/avatar.png"
 
 [Params.widgets.social]
